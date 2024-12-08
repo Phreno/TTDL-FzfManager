@@ -1,6 +1,6 @@
 # TTDL-FzfManager
 
-**TTDL-FzfManager** est un module PowerShell qui facilite la gestion des tâches Todo.txt à l'aide de l’outil [ttdl](https://github.com/cybernium/ttdl) et de la sélection interactive via [fzf](https://github.com/junegunn/fzf). Ce module offre une gamme de fonctions permettant d’ajouter, d’éditer, de compléter, de restaurer, de supprimer et de gérer vos tâches directement depuis le terminal, de manière intuitive et efficace.
+**TTDL-FzfManager** est un module PowerShell qui facilite la gestion des tâches Todo.txt à l'aide de l’outil [ttdl](https://github.com/VladimirMarkelov/ttdl) et de la sélection interactive via [fzf](https://github.com/junegunn/fzf). Ce module offre une gamme de fonctions permettant d’ajouter, d’éditer, de compléter, de restaurer, de supprimer et de gérer vos tâches directement depuis le terminal, de manière intuitive et efficace.
 
 ## Principales Fonctions
 
