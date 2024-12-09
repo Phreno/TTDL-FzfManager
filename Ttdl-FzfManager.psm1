@@ -1,4 +1,4 @@
-bè#############################################
+#############################################
 # Fonctions Utilitaires
 #############################################
 
@@ -278,34 +278,95 @@ function Invoke-Edit {
     [string]$ReplHashtag
   )
 
-  begin { $argsList = @() }
+  begin {
+    function Add-Arg ([Parameter(Position = 0)] $arg) {
+      if ($options.Contains($arg)) { return }
+      else {
+        $options.Add($arg) | Out-Null
+        Write-Debug "arg      $arg"
+        Write-Debug "options $options"
+      }
+    }
+    $options = [System.Collections.ArrayList]::new()
+  }
   process {
+
+    Write-Debug $id
+
     # Construction de la liste d'arguments
-    if ($SetPri) { $argsList += "--set-pri=$SetPri" }
-    if ($SetDue) { $argsList += "--set-due=$SetDue" }
-    if ($SetRec) { $argsList += "--set-rec=$SetRec" }
-    if ($SetProj) { $argsList += "--set-proj=$SetProj" }
-    if ($SetCtx) { $argsList += "--set-ctx=$SetCtx" }
-    if ($DelProj) { $argsList += "--del-proj=$DelProj" }
-    if ($DelCtx) { $argsList += "--del-ctx=$DelCtx" }
-    if ($ReplProj) { $argsList += "--repl-proj=$ReplProj" }
-    if ($ReplCtx) { $argsList += "--repl-ctx=$ReplCtx" }
-    if ($SetThreshold) { $argsList += "--set-threshold=$SetThreshold" }
-    if ($SetTag) { $argsList += "--set-tag=$SetTag" }
-    if ($SetHashtag) { $argsList += "--set-hashtag=$SetHashtag" }
-    if ($DelTag) { $argsList += "--del-tag=$DelTag" }
-    if ($DelHashtag) { $argsList += "--del-hashtag=$DelHashtag" }
-    if ($ReplHashtag) { $argsList += "--repl-hashtag=$ReplHashtag" }
+    if ($SetPri) {
+      Add-Arg "--set-pri=$SetPri"
+      Write-Debug "SetPri       $SetPri" -ErrorAction SilentlyContinue
+    }
+    if ($SetDue) {
+      Add-Arg "--set-due=$SetDue"
+      Write-Debug "SetDue       $SetDue" -ErrorAction SilentlyContinue
+    }
+    if ($SetRec) {
+      Add-Arg "--set-rec=$SetRec"
+      Write-Debug "SetRec       $SetRec" -ErrorAction SilentlyContinue
+    }
+    if ($SetProj) {
+      Add-Arg "--set-proj=$SetProj"
+      Write-Debug "SetProj      $SetProj" -ErrorAction SilentlyContinue
+    }
+    if ($SetCtx) {
+      Add-Arg "--set-ctx=$SetCtx"
+      Write-Debug "SetCtx       $SetCtx" -ErrorAction SilentlyContinue
+    }
+    if ($DelProj) {
+      Add-Arg "--del-proj=$DelProj"
+      Write-Debug "DelProj      $DelProj" -ErrorAction SilentlyContinue
+    }
+    if ($DelCtx) {
+      Add-Arg "--del-ctx=$DelCtx"
+      Write-Debug "DelCtx       $DelCtx" -ErrorAction SilentlyContinue
+    }
+    if ($ReplProj) {
+      Add-Arg "--repl-proj=$ReplProj"
+      Write-Debug "ReplProj     $ReplProj" -ErrorAction SilentlyContinue
+    }
+    if ($ReplCtx) {
+      Add-Arg "--repl-ctx=$ReplCtx"
+      Write-Debug "ReplCtx      $ReplCtx" -ErrorAction SilentlyContinue
+    }
+    if ($SetThreshold) {
+      Add-Arg "--set-threshold=$SetThreshold"
+      Write-Debug "SetThreshold $SetThreshold" -ErrorAction SilentlyContinue
+    }
+    if ($SetTag) {
+      Add-Arg "--set-tag=$SetTag"
+      Write-Debug "SetTag       $SetTag" -ErrorAction SilentlyContinue
+    }
+    if ($SetHashtag) {
+      Add-Arg "--set-hashtag=$SetHashtag"
+      Write-Debug "SetHashtag   $SetHashtag" -ErrorAction SilentlyContinue
+    }
+    if ($DelTag) {
+      Add-Arg "--del-tag=$DelTag"
+      Write-Debug "DelTag       $DelTag" -ErrorAction SilentlyContinue
+    }
+    if ($DelHashtag) {
+      Add-Arg "--del-hashtag=$DelHashtag"
+      Write-Debug "DelHashtag   $DelHashtag" -ErrorAction SilentlyContinue
+    }
+    if ($ReplHashtag) {
+      Add-Arg "--repl-hashtag=$ReplHashtag"
+      Write-Debug "ReplHashtag  $ReplHashtag" -ErrorAction SilentlyContinue
+    }
+
+    Write-Debug "options $options"
+
 
     # Appel à ttdl e
-    if (-not ($argsList.Count -gt 0)) {
-      # Si aucune option n'est spécifiée, on n'appelle pas ttdl
-      Write-Verbose "Aucune modification n'a été spécifiée."
+    if (-not ($options.Count -gt 0)) {
+      Write-Verbose "Aucune modification n'a ete specifiee."
       return
     }
 
-    if ($PSCmdlet.ShouldProcess($ID,"edit $argsList")) {
-      ttdl e $ID $argsList
+
+    if ($PSCmdlet.ShouldProcess($ID,"edit $options")) {
+      ttdl e $ID $options
     }
   }
 }
