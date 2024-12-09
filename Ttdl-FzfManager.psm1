@@ -14,7 +14,12 @@ PS C:\> Select-Fuzzy
     # Ouvre fzf et permet de choisir une ou plusieurs taches. Les lignes correspondantes
     # sont ensuite renvoyees.
 #>
-function Select-Fuzzy   {ttdl --dry-run | Select-Object -Skip 2 | Select-Object -SkipLast 2 | fzf --multi --tac }
+function Select-Fuzzy {
+  ttdl --dry-run |
+  Select-Object -Skip 2 |
+  Select-Object -SkipLast 2 |
+  fzf --multi --tac
+}
 
 <#
 .SYNOPSIS
@@ -28,7 +33,11 @@ Une ligne textuelle representant une tache telle qu'affichee par `ttdl`.
 PS C:\> "  3 (A) Envoyer le rapport `@bureau" | ConvertTo-Id
 3
 #>
-function ConvertTo-Id   {[CmdletBinding()] Param([Parameter(ValueFromPipeline)][string]$entry)  PROCESS { $entry | Select-String -Pattern "^(?<ID>\d+)" | ForEach-Object { $_.Matches[0].Groups['ID'].Value }  } }
+function ConvertTo-Id {
+  [CmdletBinding(SupportsShouldProcess)]
+  param([Parameter(ValueFromPipeline)] [string]$entry)
+  process { $entry | Select-String -Pattern "^(?<ID>\d+)" | ForEach-Object { $_.Matches[0].Groups['ID'].Value } }
+}
 
 #############################################
 # Fonctions d'Action sur les Taches
@@ -45,7 +54,11 @@ Le sujet (titre) de la nouvelle tache.
 .EXAMPLE
 PS C:\> Invoke-Add "Envoyer la facture +work due:2024-12-31"
 #>
-function Invoke-Add     {[CmdletBinding()] Param([Parameter(Mandatory, ValueFromPipeline)][string]$subject) PROCESS { ttdl add     $subject } }
+function Invoke-Add {
+  [CmdletBinding(SupportsShouldProcess)]
+  param([Parameter(Mandatory,ValueFromPipeline)] [string]$subject)
+  process { if ($PSCmdlet.ShouldProcess($subject,"add")) { ttdl add $subject } }
+}
 
 <#
 .SYNOPSIS
@@ -58,7 +71,11 @@ L'ID de la tache dont on demarre le timer.
 .EXAMPLE
 PS C:\> "5" | Invoke-Start
 #>
-function Invoke-Start   {[CmdletBinding()] Param([Parameter(Mandatory, ValueFromPipeline)][string]$ID)  PROCESS { ttdl start   $ID } }
+function Invoke-Start {
+  [CmdletBinding(SupportsShouldProcess)]
+  param([Parameter(Mandatory,ValueFromPipeline)] [string]$ID)
+  process { if ($PSCmdlet.ShouldProcess($ID,"start")) { ttdl start $ID } }
+}
 
 <#
 .SYNOPSIS
@@ -70,7 +87,11 @@ L'ID de la tache a arreter.
 .EXAMPLE
 PS C:\> "5" | Invoke-Stop
 #>
-function Invoke-Stop    {[CmdletBinding()] Param([Parameter(Mandatory, ValueFromPipeline)][string]$ID)  PROCESS { ttdl stop    $ID } }
+function Invoke-Stop {
+  [CmdletBinding(SupportsShouldProcess)]
+  param([Parameter(Mandatory,ValueFromPipeline)] [string]$ID)
+  process { if ($PSCmdlet.ShouldProcess($ID,"stop")) { ttdl stop $ID } }
+}
 
 <#
 .SYNOPSIS
@@ -82,7 +103,12 @@ L'ID de la tache a marquer comme terminee.
 .EXAMPLE
 PS C:\> "5" | Invoke-Done
 #>
-function Invoke-Done    {[CmdletBinding()] Param([Parameter(Mandatory, ValueFromPipeline)][string]$ID)  PROCESS { ttdl done    $ID } }
+function Invoke-Done {
+  [CmdletBinding(SupportsShouldProcess)]
+  param([Parameter(Mandatory,ValueFromPipeline)] [string]$ID)
+  process { if ($PSCmdlet.ShouldProcess($ID,"done")) { ttdl done $ID } }
+}
+
 
 <#
 .SYNOPSIS
@@ -94,7 +120,12 @@ L'ID de la tache a restaurer.
 .EXAMPLE
 PS C:\> "5" | Invoke-Undone
 #>
-function Invoke-Undone  {[CmdletBinding()] Param([Parameter(Mandatory, ValueFromPipeline)][string]$ID)  PROCESS { ttdl undone  $ID } }
+function Invoke-Undone {
+  [CmdletBinding(SupportsShouldProcess)]
+  param([Parameter(Mandatory,ValueFromPipeline)] [string]$ID)
+  process { if ($PSCmdlet.ShouldProcess($ID,"undone")) { ttdl undone $ID } }
+}
+
 
 <#
 .SYNOPSIS
@@ -108,7 +139,11 @@ L'ID de la tache a supprimer.
 .EXAMPLE
 PS C:\> "5" | Invoke-Remove
 #>
-function Invoke-Remove  {[CmdletBinding()] Param([Parameter(Mandatory, ValueFromPipeline)][string]$ID)  PROCESS { ttdl rm      $ID } }
+function Invoke-Remove {
+  [CmdletBinding(SupportsShouldProcess)]
+  param([Parameter(Mandatory,ValueFromPipeline)] [string]$ID)
+  process { if ($PSCmdlet.ShouldProcess($ID,"remove")) { ttdl rm $ID } }
+}
 
 <#
 .SYNOPSIS
@@ -123,7 +158,12 @@ Le texte a ajouter a la fin du sujet.
 .EXAMPLE
 PS C:\> "5" | Invoke-Append -suffix " [a revoir]"
 #>
-function Invoke-Append  {[CmdletBinding()] Param([Parameter(Mandatory, ValueFromPipeline)][string]$ID, [Parameter(Mandatory)][string]$suffix)  PROCESS { ttdl append  $ID $suffix } }
+function Invoke-Append {
+  [CmdletBinding(SupportsShouldProcess)]
+  param([Parameter(Mandatory,ValueFromPipeline)] [string]$ID,[Parameter(Mandatory)] [string]$suffix)
+  process { if ($PSCmdlet.ShouldProcess($ID,"append $suffix")) { ttdl append $ID $suffix } }
+}
+
 
 <#
 .SYNOPSIS
@@ -138,7 +178,11 @@ Le texte a inserer au debut du sujet.
 .EXAMPLE
 PS C:\> "5" | Invoke-Prepend -prefix "URGENT: "
 #>
-function Invoke-Prepend {[CmdletBinding()] Param([Parameter(Mandatory, ValueFromPipeline)][string]$ID, [Parameter(Mandatory)][string]$prefix)  PROCESS { ttdl prepend $ID $prefix } }
+function Invoke-Prepend {
+  [CmdletBinding(SupportsShouldProcess)]
+  param([Parameter(Mandatory,ValueFromPipeline)] [string]$ID,[Parameter(Mandatory)] [string]$prefix)
+  process { if ($PSCmdlet.ShouldProcess($ID,"prefix $prefix")) { ttdl prepend $ID $prefix } }
+}
 
 <#
 .SYNOPSIS
@@ -153,7 +197,7 @@ Les paramètres correspondent directement aux options `--set-pri`, `--set-due`, 
 `--set-hashtag`, `--del-tag`, `--del-hashtag`, `--repl-hashtag` de `ttdl`.
 
 .PARAMETER ID
-L'ID (ou la plage d'IDs) de la tâche à modifier, ou un critère de sélection (ex: +projet, @context, ...)
+L'ID (ou la plage d'IDs) de la tâche à modifier, ou un critère de sélection (ex: +projet, `@context, ...)
 
 .PARAMETER SetPri
 Change la priorité de la tâche. Valeurs possibles: `none`, `A-Z`, `+`, `-`.
@@ -212,57 +256,58 @@ Modifie toutes les tâches du projet `monprojet`, leur ajoute les contextes "wor
 et supprime le projet nommé "oldproj".
 #>
 function Invoke-Edit {
-    [CmdletBinding()]
-    Param(
-        [Parameter(Mandatory, ValueFromPipeline)]
-        [string]$ID,
-        
-        [string]$SetPri,
-        [string]$SetDue,
-        [string]$SetRec,
-        [string]$SetProj,
-        [string]$SetCtx,
-        [string]$DelProj,
-        [string]$DelCtx,
-        [string]$ReplProj,
-        [string]$ReplCtx,
-        [string]$SetThreshold,
-        [string]$SetTag,
-        [string]$SetHashtag,
-        [string]$DelTag,
-        [string]$DelHashtag,
-        [string]$ReplHashtag
-    )
-    
-    BEGIN {
-        $argsList = @()
+  [CmdletBinding(SupportsShouldProcess)]
+  param(
+    [Parameter(Mandatory,ValueFromPipeline)]
+    [string]$ID,
+
+    [string]$SetPri,
+    [string]$SetDue,
+    [string]$SetRec,
+    [string]$SetProj,
+    [string]$SetCtx,
+    [string]$DelProj,
+    [string]$DelCtx,
+    [string]$ReplProj,
+    [string]$ReplCtx,
+    [string]$SetThreshold,
+    [string]$SetTag,
+    [string]$SetHashtag,
+    [string]$DelTag,
+    [string]$DelHashtag,
+    [string]$ReplHashtag
+  )
+
+  begin { $argsList = @() }
+  process {
+    # Construction de la liste d'arguments
+    if ($SetPri) { $argsList += "--set-pri=$SetPri" }
+    if ($SetDue) { $argsList += "--set-due=$SetDue" }
+    if ($SetRec) { $argsList += "--set-rec=$SetRec" }
+    if ($SetProj) { $argsList += "--set-proj=$SetProj" }
+    if ($SetCtx) { $argsList += "--set-ctx=$SetCtx" }
+    if ($DelProj) { $argsList += "--del-proj=$DelProj" }
+    if ($DelCtx) { $argsList += "--del-ctx=$DelCtx" }
+    if ($ReplProj) { $argsList += "--repl-proj=$ReplProj" }
+    if ($ReplCtx) { $argsList += "--repl-ctx=$ReplCtx" }
+    if ($SetThreshold) { $argsList += "--set-threshold=$SetThreshold" }
+    if ($SetTag) { $argsList += "--set-tag=$SetTag" }
+    if ($SetHashtag) { $argsList += "--set-hashtag=$SetHashtag" }
+    if ($DelTag) { $argsList += "--del-tag=$DelTag" }
+    if ($DelHashtag) { $argsList += "--del-hashtag=$DelHashtag" }
+    if ($ReplHashtag) { $argsList += "--repl-hashtag=$ReplHashtag" }
+
+    # Appel à ttdl e
+    if (-not ($argsList.Count -gt 0)) {
+      # Si aucune option n'est spécifiée, on n'appelle pas ttdl
+      Write-Verbose "Aucune modification n'a été spécifiée."
+      return
     }
-    PROCESS {
-        # Construction de la liste d'arguments
-        if ($SetPri)       { $argsList += "--set-pri=$SetPri" }
-        if ($SetDue)       { $argsList += "--set-due=$SetDue" }
-        if ($SetRec)       { $argsList += "--set-rec=$SetRec" }
-        if ($SetProj)      { $argsList += "--set-proj=$SetProj" }
-        if ($SetCtx)       { $argsList += "--set-ctx=$SetCtx" }
-        if ($DelProj)      { $argsList += "--del-proj=$DelProj" }
-        if ($DelCtx)       { $argsList += "--del-ctx=$DelCtx" }
-        if ($ReplProj)     { $argsList += "--repl-proj=$ReplProj" }
-        if ($ReplCtx)      { $argsList += "--repl-ctx=$ReplCtx" }
-        if ($SetThreshold) { $argsList += "--set-threshold=$SetThreshold" }
-        if ($SetTag)       { $argsList += "--set-tag=$SetTag" }
-        if ($SetHashtag)   { $argsList += "--set-hashtag=$SetHashtag" }
-        if ($DelTag)       { $argsList += "--del-tag=$DelTag" }
-        if ($DelHashtag)   { $argsList += "--del-hashtag=$DelHashtag" }
-        if ($ReplHashtag)  { $argsList += "--repl-hashtag=$ReplHashtag" }
-        
-        # Appel à ttdl e
-        if ($argsList.Count -gt 0) {
-            ttdl e $ID $argsList
-        } else {
-            # Si aucune option n'est spécifiée, on n'appelle pas ttdl
-            Write-Verbose "Aucune modification n'a été spécifiée."
-        }
+
+    if ($PSCmdlet.ShouldProcess($ID,"edit $argsList")) {
+      ttdl e $ID $argsList
     }
+  }
 }
 #############################################
 # Fonctions de Selection et d’Action Combinees
@@ -278,7 +323,10 @@ puis appelle `Invoke-Start` pour demarrer le timer.
 PS C:\> Start-Task
     # Selectionne une tache et demarre son chronometre.
 #>
-function Start-Task     {[CmdletBinding()] Param() PROCESS { Select-Fuzzy | ConvertTo-Id | Invoke-Start   }}
+function Start-Task {
+  [CmdletBinding(SupportsShouldProcess)] param()
+  process { Select-Fuzzy | ConvertTo-Id | Invoke-Start }
+}
 
 <#
 .SYNOPSIS
@@ -289,7 +337,10 @@ puis appelle `Invoke-Stop` pour arreter le timer.
 .EXAMPLE
 PS C:\> Stop-Task
 #>
-function Stop-Task      {[CmdletBinding()] Param() PROCESS { Select-Fuzzy | ConvertTo-Id | Invoke-Stop    }}
+function Stop-Task {
+  [CmdletBinding(SupportsShouldProcess)] param()
+  process { Select-Fuzzy | ConvertTo-Id | Invoke-Stop }
+}
 
 <#
 .SYNOPSIS
@@ -299,7 +350,10 @@ Selectionne une tache via fzf puis la marque comme terminee.
 .EXAMPLE
 PS C:\> Complete-Task
 #>
-function Complete-Task  {[CmdletBinding()] Param() PROCESS { Select-Fuzzy | ConvertTo-Id | Invoke-Done    }}
+function Complete-Task {
+  [CmdletBinding(SupportsShouldProcess)] param()
+  process { Select-Fuzzy | ConvertTo-Id | Invoke-Done }
+}
 
 <#
 .SYNOPSIS
@@ -309,7 +363,10 @@ Selectionne une tache via fzf puis la remet en incomplete si elle etait complete
 .EXAMPLE
 PS C:\> Restore-Task
 #>
-function Restore-Task   {[CmdletBinding()] Param() PROCESS { Select-Fuzzy | ConvertTo-Id | Invoke-Undone  }}
+function Restore-Task {
+  [CmdletBinding(SupportsShouldProcess)] param()
+  process { Select-Fuzzy | ConvertTo-Id | Invoke-Undone }
+}
 
 <#
 .SYNOPSIS
@@ -319,7 +376,10 @@ Selectionne une tache via fzf puis la supprime.
 .EXAMPLE
 PS C:\> Remove-Task
 #>
-function Remove-Task    {[CmdletBinding()] Param() PROCESS { Select-Fuzzy | ConvertTo-Id | Invoke-Remove  }}
+function Remove-Task {
+  [CmdletBinding(SupportsShouldProcess)] param()
+  process { Select-Fuzzy | ConvertTo-Id | Invoke-Remove }
+}
 
 <#
 .SYNOPSIS
@@ -332,7 +392,10 @@ Le texte a ajouter.
 PS C:\> Add-TaskSuffix " [revu]"
     # Selectionne une tache, puis ajoute " [revu]" a la fin.
 #>
-function Add-TaskSuffix {[CmdletBinding()] Param([Parameter(Mandatory, Position = 0)][string]$suffix) PROCESS { Select-Fuzzy | ConvertTo-Id | Invoke-Append -suffix $suffix }}
+function Add-TaskSuffix {
+  [CmdletBinding(SupportsShouldProcess)] param([Parameter(Mandatory,Position = 0)] [string]$suffix)
+  process { Select-Fuzzy | ConvertTo-Id | Invoke-Append -suffix $suffix }
+}
 
 <#
 .SYNOPSIS
@@ -345,7 +408,10 @@ Le texte a inserer au debut du sujet.
 PS C:\> Add-TaskPrefix "IMPORTANT: "
     # Selectionne une tache, puis ajoute "IMPORTANT: " au debut.
 #>
-function Add-TaskPrefix {[CmdletBinding()] Param([Parameter(Mandatory, Position = 0)][string]$prefix) PROCESS { Select-Fuzzy | ConvertTo-Id | Invoke-Prepend -prefix $prefix}}
+function Add-TaskPrefix {
+  [CmdletBinding(SupportsShouldProcess)] param([Parameter(Mandatory,Position = 0)] [string]$prefix)
+  process { Select-Fuzzy | ConvertTo-Id | Invoke-Prepend -Prefix $prefix }
+}
 
 #############################################
 # Fonctions d'edition
@@ -370,53 +436,53 @@ PS C:\> Edit-Task --SetPri A --SetDue 2025-01-01
     # Sélectionne une tâche, puis la modifie avec la priorité A et une due date au 01/01/2025
 #>
 function Edit-Task {
-    [CmdletBinding()]
-    Param(
-        [string]$SetPri,
-        [string]$SetDue,
-        [string]$SetRec,
-        [string]$SetProj,
-        [string]$SetCtx,
-        [string]$DelProj,
-        [string]$DelCtx,
-        [string]$ReplProj,
-        [string]$ReplCtx,
-        [string]$SetThreshold,
-        [string]$SetTag,
-        [string]$SetHashtag,
-        [string]$DelTag,
-        [string]$DelHashtag,
-        [string]$ReplHashtag
-    )
-    PROCESS {
-        Select-Fuzzy | ConvertTo-Id | Invoke-Edit `
-            -SetPri $SetPri `
-            -SetDue $SetDue `
-            -SetRec $SetRec `
-            -SetProj $SetProj `
-            -SetCtx $SetCtx `
-            -DelProj $DelProj `
-            -DelCtx $DelCtx `
-            -ReplProj $ReplProj `
-            -ReplCtx $ReplCtx `
-            -SetThreshold $SetThreshold `
-            -SetTag $SetTag `
-            -SetHashtag $SetHashtag `
-            -DelTag $DelTag `
-            -DelHashtag $DelHashtag `
-            -ReplHashtag $ReplHashtag
-    }
+  [CmdletBinding(SupportsShouldProcess)]
+  param(
+    [string]$SetPri,
+    [string]$SetDue,
+    [string]$SetRec,
+    [string]$SetProj,
+    [string]$SetCtx,
+    [string]$DelProj,
+    [string]$DelCtx,
+    [string]$ReplProj,
+    [string]$ReplCtx,
+    [string]$SetThreshold,
+    [string]$SetTag,
+    [string]$SetHashtag,
+    [string]$DelTag,
+    [string]$DelHashtag,
+    [string]$ReplHashtag
+  )
+  process {
+    Select-Fuzzy | ConvertTo-Id | Invoke-Edit `
+       -SetPri $SetPri `
+       -SetDue $SetDue `
+       -SetRec $SetRec `
+       -SetProj $SetProj `
+       -SetCtx $SetCtx `
+       -DelProj $DelProj `
+       -DelCtx $DelCtx `
+       -ReplProj $ReplProj `
+       -ReplCtx $ReplCtx `
+       -SetThreshold $SetThreshold `
+       -SetTag $SetTag `
+       -SetHashtag $SetHashtag `
+       -DelTag $DelTag `
+       -DelHashtag $DelHashtag `
+       -ReplHashtag $ReplHashtag
+  }
 }
 #############################################
 # Alias
 #############################################
 
-New-Alias -Name "s"  -Value "Start-Task"     -Force
-New-Alias -Name "so" -Value "Stop-Task"      -Force
-New-Alias -Name "ia" -Value "Invoke-Add"     -Force
-New-Alias -Name "co" -Value "Complete-Task"  -Force
-New-Alias -Name "re" -Value "Restore-Task"   -Force
+New-Alias -Name "s" -Value "Start-Task" -Force
+New-Alias -Name "so" -Value "Stop-Task" -Force
+New-Alias -Name "ia" -Value "Invoke-Add" -Force
+New-Alias -Name "co" -Value "Complete-Task" -Force
+New-Alias -Name "re" -Value "Restore-Task" -Force
 New-Alias -Name "ds" -Value "Add-TaskSuffix" -Force
 New-Alias -Name "dp" -Value "Add-TaskPrefix" -Force
-New-Alias -Name "dl" -Value "Remove-Task"    -Force
-New-Alias -Name "ed" -Value "Edit-Task"      -Force
+New-Alias -Name "dl" -Value "Remove-Task" -Force
+New-Alias -Name "ed" -Value "Edit-Task" -Force
